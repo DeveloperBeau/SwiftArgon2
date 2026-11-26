@@ -14,28 +14,24 @@ env:
 
 jobs:
   macos:
-    name: macOS tests
+    name: macOS tests (Xcode 26.6)
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
-      - name: List installed Xcodes
-        run: ls -d /Applications/Xcode*.app
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "27.2"
+          xcode-version: "26.6" # newest on GitHub-hosted runners; also tested locally on 27.2
       - run: swift --version
       - run: swift test
 
   ios:
-    name: iOS Simulator tests
+    name: iOS Simulator tests (Xcode 26.6)
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
-      - name: List installed Xcodes
-        run: ls -d /Applications/Xcode*.app
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "27.2"
+          xcode-version: "26.6" # newest on GitHub-hosted runners; also tested locally on 27.2
       - name: Pick an iPhone simulator
         run: |
           udid=$(xcrun simctl list devices available -j \
@@ -88,7 +84,8 @@ jobs:
 
       - name: Link NDK into Swift SDK
         run: |
-          script=$(find "$HOME/.swiftpm" "${XDG_CONFIG_HOME:-$HOME/.config}/swiftpm" -path "*/${ANDROID_SDK_ID}.artifactbundle/swift-android/scripts/setup-android-sdk.sh" -print -quit 2>/dev/null)
+          script=$(find "$HOME" -maxdepth 7 -path "*/${ANDROID_SDK_ID}.artifactbundle/swift-android/scripts/setup-android-sdk.sh" -print -quit 2>/dev/null || true)
+          echo "setup script: ${script:-<not found>}"
           test -n "$script"
           "$script"
 

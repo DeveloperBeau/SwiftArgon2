@@ -306,7 +306,7 @@ Sources/
 | visionOS  | 1.0             |
 | Android   | Swift SDK for Android (Swift 6.4) |
 
-Requires Swift 6.4 / Xcode 27.2 or later. The Apple minimums match the lowest deployment targets Xcode 27.2 supports.
+Requires Swift 6.3 / Xcode 26 or later. Tested on Xcode 27.2 and Xcode 26.6. The Apple minimums match the lowest deployment targets Xcode 27.2 supports.
 
 ### Building for Android
 
