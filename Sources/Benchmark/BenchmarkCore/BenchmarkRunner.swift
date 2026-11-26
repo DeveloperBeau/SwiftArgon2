@@ -1,5 +1,5 @@
 import Foundation
-import Argon2
+import SwiftArgon2
 import argon2
 import Darwin.Mach
 

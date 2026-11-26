@@ -1,6 +1,6 @@
 /// Argon2 concurrency test suite
 import Testing
-@testable import Argon2
+@testable import SwiftArgon2
 @testable import Argon2Core
 
 @Suite("Argon2 Concurrency Tests")

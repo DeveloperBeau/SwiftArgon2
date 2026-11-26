@@ -1,6 +1,6 @@
 /// Argon2 verification test suite
 import Testing
-@testable import Argon2
+@testable import SwiftArgon2
 @testable import Encoding
 
 @Suite("Argon2 Verification Tests")

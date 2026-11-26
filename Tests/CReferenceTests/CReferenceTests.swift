@@ -1,5 +1,5 @@
 import Testing
-import Argon2
+import SwiftArgon2
 import argon2
 
 /// Comprehensive tests comparing Swift Argon2 output against the C reference implementation

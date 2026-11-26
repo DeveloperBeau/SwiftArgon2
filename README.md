@@ -31,12 +31,12 @@ dependencies: [
 ]
 ```
 
-Then add `Argon2` to your target dependencies:
+Then add the `SwiftArgon2` product to your target dependencies:
 
 ```swift
 .target(
     name: "YourTarget",
-    dependencies: ["Argon2"]
+    dependencies: [.product(name: "SwiftArgon2", package: "SwiftArgon2")]
 )
 ```
 
@@ -45,7 +45,7 @@ Then add `Argon2` to your target dependencies:
 ### Basic Password Hashing
 
 ```swift
-import Argon2
+import SwiftArgon2
 
 // Hash a password with default settings (Argon2id, recommended for most uses)
 let salt = Argon2.generateSalt(length: 16)
@@ -60,7 +60,7 @@ let encoded = try Argon2.hashEncoded(
 ### Password Verification
 
 ```swift
-import Argon2
+import SwiftArgon2
 
 let isValid = try Argon2.verify(
     password: "my secure password",
@@ -71,7 +71,7 @@ let isValid = try Argon2.verify(
 ### Custom Configuration
 
 ```swift
-import Argon2
+import SwiftArgon2
 
 let config = Argon2Configuration(
     variant: .argon2id,      // argon2d, argon2i, or argon2id
@@ -92,7 +92,7 @@ let hash = try Argon2.hashRaw(
 ### Async API
 
 ```swift
-import Argon2
+import SwiftArgon2
 
 // Non-blocking hash for use in async contexts
 let hash = try await Argon2.hashRawAsync(
@@ -135,18 +135,11 @@ Run all tests (recommended):
 bash test.sh
 ```
 
-### Xcode Test Runner Limitation
+### C Reference Tests
 
-The `CReferenceTests` target compares Swift output against the C reference implementation from [phc-winner-argon2](https://github.com/P-H-C/phc-winner-argon2). Due to a known limitation with Xcode's test runner and Swift Package Manager C library dependencies, these tests will fail to build when run from Xcode's Test Navigator or via `xcodebuild test`.
+The `CReferenceTests` target compares Swift output against the C reference implementation from [phc-winner-argon2](https://github.com/P-H-C/phc-winner-argon2). It runs from `swift test`, `xcodebuild test`, and Xcode's Test Navigator.
 
-**The issue:** Xcode's test runner uses a different build pipeline than `swift test`. When a test target depends on a C library package, Xcode often fails to properly link the C module or locate its headers, resulting in "No such module" errors. This affects many Swift packages that wrap or depend on C libraries and is not specific to this project.
-
-**Workarounds:**
-- **Use the test script** (recommended): Run `bash test.sh` from the terminal. This uses SwiftPM's native build system which correctly handles C dependencies.
-- **Run non-C tests in Xcode:** The `Argon2Tests` and `Blake2bTests` suites have no C dependencies and run normally in Xcode's test runner.
-- **Exclude CReferenceTests in Xcode:** If you open the package in Xcode, you can run just the Swift-only test suites without issues.
-
-**Why not fix it?** Potential fixes like wrapping the C library in an XCFramework or modifying Xcode build settings are fragile and add complexity. Since the C reference tests are for verification during development (not required for library users), the command-line approach is the pragmatic solution.
+The public module is named `SwiftArgon2` rather than `Argon2` so its build products do not collide with the C module `argon2` on case-insensitive file systems.
 
 ## Performance
 
@@ -296,7 +289,7 @@ Results are written to `BENCHMARK.md` with detailed per-configuration timings.
 
 ```
 Sources/
-├── Argon2/           # Public API
+├── SwiftArgon2/      # Public API
 ├── Argon2Core/       # Core algorithm implementation
 ├── Blake2b/          # BLAKE2b hash function
 └── Encoding/         # PHC string format encoding
@@ -306,11 +299,14 @@ Sources/
 
 | Platform  | Minimum Version |
 |-----------|-----------------|
-| macOS     | 10.15           |
-| iOS       | 13.0            |
-| tvOS      | 13.0            |
-| watchOS   | 6.0             |
+| macOS     | 12.0            |
+| iOS       | 15.0            |
+| tvOS      | 15.0            |
+| watchOS   | 9.0             |
 | visionOS  | 1.0             |
+| Android   | Swift SDK for Android (Swift 6.4) |
+
+Requires Swift 6.4 / Xcode 27.2 or later. The Apple minimums match the lowest deployment targets Xcode 27.2 supports.
 
 ## Credits & Acknowledgments
 

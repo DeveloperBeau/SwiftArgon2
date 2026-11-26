@@ -87,7 +87,7 @@ The combination of `@inline(never)` plus the lifetime extension should prevent d
 
 The C CLI defaults to 4 MiB memory, t=3, p=1. That's pretty conservative—reasonable for 2015-era hardware.
 
-The presets here are higher because I'm targeting iOS 13+ / macOS 10.15+ where devices have plenty of RAM:
+The presets here are higher because I'm targeting iOS 15+ / macOS 12+ where devices have plenty of RAM:
 
 | Preset | Memory | Time Cost | Parallelism | Use Case |
 |--------|--------|-----------|-------------|----------|
