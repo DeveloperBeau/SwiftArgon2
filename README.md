@@ -323,7 +323,7 @@ swiftly run swift build --product SwiftArgon2 --swift-sdk swift-6.4.3-RELEASE_an
   --triple aarch64-unknown-linux-android23 --static-swift-stdlib +6.4.3
 ```
 
-Use `x86_64-unknown-linux-android23` for x86_64. To build tests, use `--build-tests` without `--static-swift-stdlib`, because Swift Testing ships only as a shared library in the SDK. Push the `*-test-runner` binaries, their `*.so` bundles, the SDK's `swift-<arch>/android/*.so` and the NDK's `libc++_shared.so` to a device, then run with `LD_LIBRARY_PATH` set.
+Use `x86_64-unknown-linux-android23` for x86_64. To run the full test suite on a connected device or emulator, use `scripts/android-test.sh [aarch64|x86_64]` (set `SWIFT="swiftly run swift +6.4.3"` if 6.4.3 is not your default toolchain). Tests build without `--static-swift-stdlib`, because Swift Testing ships only as a shared library in the SDK.
 
 On Android, `Argon2.generateSalt` uses `SystemRandomNumberGenerator`, which reads from the kernel CSPRNG.
 
