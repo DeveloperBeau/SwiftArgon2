@@ -1,7 +1,7 @@
 /// Argon2 hash test suite
 /// Test vectors from the C reference implementation
 import Testing
-@testable import Argon2
+@testable import SwiftArgon2
 @testable import Argon2Core
 @testable import Encoding
 

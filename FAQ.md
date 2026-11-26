@@ -306,16 +306,16 @@ DispatchQueue.global().async {
 
 ## Platform Support
 
-### Why minimum iOS 13 / macOS 10.15?
+### Why minimum iOS 15 / macOS 12?
 
 The minimum deployment targets are:
-- macOS 10.15 (Catalina)
-- iOS 13.0
-- tvOS 13.0
-- watchOS 6.0
+- macOS 12.0 (Monterey)
+- iOS 15.0
+- tvOS 15.0
+- watchOS 9.0
 - visionOS 1.0
 
-These requirements stem from:
+These are the lowest deployment targets Xcode 27.2 supports. The code itself would run on older OS versions because:
 
 1. **Swift Concurrency back-deployment**: While Swift 6 is used for compilation, the concurrency runtime is back-deployed to these OS versions.
 

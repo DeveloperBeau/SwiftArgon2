@@ -34,7 +34,7 @@ func main() {
         let percentage = Int(Double(current) / Double(total) * 100)
         let progressBar = createProgressBar(current: current, total: total, width: 30)
         print("\r\(progressBar) \(percentage)% | \(current)/\(total) | \(description)", terminator: "")
-        fflush(stdout)
+        fflush(nil) // flush all streams; avoids non-Sendable `stdout` global on Android (Bionic)
     }
 
     print()

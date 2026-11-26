@@ -1,4 +1,4 @@
-import Argon2
+import SwiftArgon2
 
 /// Configuration for benchmark test parameters
 public struct BenchmarkConfiguration: Sendable {

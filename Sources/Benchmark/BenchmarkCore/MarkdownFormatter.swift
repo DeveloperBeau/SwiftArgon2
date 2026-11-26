@@ -1,5 +1,5 @@
 import Foundation
-import Argon2
+import SwiftArgon2
 
 /// Formats benchmark results as Markdown
 public struct MarkdownFormatter: Sendable {

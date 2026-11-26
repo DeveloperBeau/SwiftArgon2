@@ -28,6 +28,7 @@ public struct SystemInfo: Sendable {
 
 // MARK: - Private Helpers
 
+#if canImport(Darwin)
 private func sysctlString(_ name: String) -> String? {
     var size: size_t = 0
     guard sysctlbyname(name, nil, &size, nil, 0) == 0 else { return nil }
@@ -55,6 +56,12 @@ private func sysctlUInt64(_ name: String) -> UInt64? {
     guard sysctlbyname(name, &value, &size, nil, 0) == 0 else { return nil }
     return value
 }
+#else
+// sysctl is Darwin-only; callers fall back to ProcessInfo or "Unknown".
+private func sysctlString(_ name: String) -> String? { nil }
+private func sysctlInt(_ name: String) -> Int? { nil }
+private func sysctlUInt64(_ name: String) -> UInt64? { nil }
+#endif
 
 private func getMacModel() -> String {
     sysctlString("hw.model") ?? "Unknown"
@@ -103,11 +110,24 @@ private func getMemoryGB() -> Double {
 private func getOSVersion() -> String {
     let info = ProcessInfo.processInfo
     let version = info.operatingSystemVersion
-    return "macOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
+    #if os(macOS)
+    let name = "macOS"
+    #elseif os(Android)
+    let name = "Android"
+    #elseif os(Linux)
+    let name = "Linux"
+    #else
+    let name = "OS"
+    #endif
+    return "\(name) \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
 }
 
 private func getSwiftVersion() -> String {
-    #if swift(>=6.2)
+    #if swift(>=6.4)
+    return "Swift 6.4"
+    #elseif swift(>=6.3)
+    return "Swift 6.3"
+    #elseif swift(>=6.2)
     return "Swift 6.2"
     #elseif swift(>=6.1)
     return "Swift 6.1"

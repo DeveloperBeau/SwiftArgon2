@@ -1,7 +1,13 @@
 import Foundation
-import Argon2
+import SwiftArgon2
 import argon2
+#if canImport(Darwin)
 import Darwin.Mach
+#elseif canImport(Android)
+import Android
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 /// Result of a single benchmark measurement
 public struct BenchmarkMeasurement: Sendable {
@@ -238,6 +244,7 @@ private func standardDeviation(_ values: [Double]) -> Double {
 
 // MARK: - High-Resolution Timing
 
+#if canImport(Darwin)
 /// Cached timebase info for mach_absolute_time conversion
 private let machTimebaseInfo: mach_timebase_info_data_t = {
     var info = mach_timebase_info_data_t()
@@ -249,6 +256,17 @@ private let machTimebaseInfo: mach_timebase_info_data_t = {
 private func machAbsoluteTime() -> UInt64 {
     mach_absolute_time()
 }
+#else
+/// Monotonic clock in nanoseconds (timebase is 1:1 on non-Darwin platforms)
+private let machTimebaseInfo = (numer: UInt32(1), denom: UInt32(1))
+
+/// Get current monotonic time in nanoseconds
+private func machAbsoluteTime() -> UInt64 {
+    var ts = timespec()
+    clock_gettime(CLOCK_MONOTONIC, &ts)
+    return UInt64(ts.tv_sec) * 1_000_000_000 + UInt64(ts.tv_nsec)
+}
+#endif
 
 /// Convert mach time difference to seconds
 private func machTimeToSeconds(_ machTime: UInt64) -> Double {
