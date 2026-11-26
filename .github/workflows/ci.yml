@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  SWIFT_VERSION: "6.4.3"
+  ANDROID_SDK_URL: https://download.swift.org/swift-6.4.3-release/android-sdk/swift-6.4.3-RELEASE/swift-6.4.3-RELEASE_android.artifactbundle.tar.gz
+  ANDROID_SDK_CHECKSUM: a78839edf4ec161e03b9f1e22a0ef94e565ece3f3ce5c03e3c79246c6b71f0a9
+  ANDROID_SDK_ID: swift-6.4.3-RELEASE_android
+  ANDROID_NDK_VERSION: r30
+
+jobs:
+  apple:
+    name: macOS (Xcode latest stable)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - run: swift --version
+      - run: swift test
+
+  android:
+    name: Android (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [aarch64, x86_64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install swiftly and Swift ${{ env.SWIFT_VERSION }}
+        run: |
+          curl -fsSLO "https://download.swift.org/swiftly/linux/swiftly-$(uname -m).tar.gz"
+          tar zxf "swiftly-$(uname -m).tar.gz"
+          ./swiftly init --quiet-shell-followup --assume-yes --skip-install
+          . "${SWIFTLY_HOME_DIR:-$HOME/.local/share/swiftly}/env.sh"
+          swiftly install "$SWIFT_VERSION" --use --assume-yes
+          echo "$(dirname "$(command -v swift)")" >> "$GITHUB_PATH"
+          swift --version
+
+      - name: Install Swift SDK for Android
+        run: swift sdk install "$ANDROID_SDK_URL" --checksum "$ANDROID_SDK_CHECKSUM"
+
+      - name: Install Android NDK ${{ env.ANDROID_NDK_VERSION }}
+        run: |
+          curl -fsSL -o ndk.zip "https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-$(uname -s).zip"
+          unzip -qo ndk.zip -d "$RUNNER_TEMP"
+          echo "ANDROID_NDK_HOME=$RUNNER_TEMP/android-ndk-${ANDROID_NDK_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Link NDK into Swift SDK
+        run: |
+          script=$(find "$HOME" -path "*/${ANDROID_SDK_ID}.artifactbundle/swift-android/scripts/setup-android-sdk.sh" -print -quit)
+          test -n "$script"
+          "$script"
+
+      - name: Build library (static Swift stdlib)
+        run: |
+          swift build --product SwiftArgon2 \
+            --swift-sdk "$ANDROID_SDK_ID" \
+            --triple "${{ matrix.arch }}-unknown-linux-android23" \
+            --static-swift-stdlib
+
+      # Swift Testing ships only as a shared library in the Android SDK,
+      # so tests build against the dynamic stdlib.
+      - name: Build tests
+        run: |
+          swift build --build-tests \
+            --swift-sdk "$ANDROID_SDK_ID" \
+            --triple "${{ matrix.arch }}-unknown-linux-android23"

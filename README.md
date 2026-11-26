@@ -308,6 +308,25 @@ Sources/
 
 Requires Swift 6.4 / Xcode 27.2 or later. The Apple minimums match the lowest deployment targets Xcode 27.2 supports.
 
+### Building for Android
+
+Android builds use the [Swift SDK for Android](https://www.swift.org/documentation/articles/swift-sdk-for-android-getting-started.html). It needs the open-source Swift 6.4.3 toolchain (Xcode's toolchain cannot use Swift SDKs) and Android NDK r27 or later.
+
+```bash
+swiftly install 6.4.3
+swiftly run swift sdk install https://download.swift.org/swift-6.4.3-release/android-sdk/swift-6.4.3-RELEASE/swift-6.4.3-RELEASE_android.artifactbundle.tar.gz \
+  --checksum a78839edf4ec161e03b9f1e22a0ef94e565ece3f3ce5c03e3c79246c6b71f0a9 +6.4.3
+export ANDROID_NDK_HOME=~/Library/Android/sdk/ndk/<version>
+~/Library/org.swift.swiftpm/swift-sdks/swift-6.4.3-RELEASE_android.artifactbundle/swift-android/scripts/setup-android-sdk.sh
+
+swiftly run swift build --product SwiftArgon2 --swift-sdk swift-6.4.3-RELEASE_android \
+  --triple aarch64-unknown-linux-android23 --static-swift-stdlib +6.4.3
+```
+
+Use `x86_64-unknown-linux-android23` for x86_64. To build tests, use `--build-tests` without `--static-swift-stdlib`, because Swift Testing ships only as a shared library in the SDK. Push the `*-test-runner` binaries, their `*.so` bundles, the SDK's `swift-<arch>/android/*.so` and the NDK's `libc++_shared.so` to a device, then run with `LD_LIBRARY_PATH` set.
+
+On Android, `Argon2.generateSalt` uses `SystemRandomNumberGenerator`, which reads from the kernel CSPRNG.
+
 ## Credits & Acknowledgments
 
 This project recreates the Argon2 algorithm in Swift. It is not affiliated with, endorsed by, or connected to the original Argon2 project or its creators.
